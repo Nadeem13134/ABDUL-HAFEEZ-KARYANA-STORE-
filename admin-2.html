@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - ABDUL HAFEEZ KARYANA STORE</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Trebuchet MS', 'Arial Black', sans-serif;
+        background: #f5f5f5;
+        color: #222;
+    }
+    header {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: #fff;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: .75rem;
+    }
+    header h1 { font-size: 1.4rem; letter-spacing: 1px; text-transform: uppercase; }
+    header a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        border: 2px solid #ff6b35;
+        padding: .5rem 1rem;
+        border-radius: 6px;
+        font-size: .85rem;
+    }
+    header a:hover { background: #ff6b35; }
+
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+
+    /* Lock screen */
+    #lockScreen {
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 2rem;
+    }
+    #lockScreen h2 { font-size: 1.6rem; }
+    #lockScreen input {
+        padding: .9rem 1rem;
+        font-size: 1.1rem;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        width: 220px;
+        text-align: center;
+        letter-spacing: 4px;
+    }
+    #lockScreen button, .btn {
+        background: #ff6b35;
+        color: #fff;
+        border: none;
+        padding: .9rem 1.8rem;
+        font-weight: 800;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    #lockScreen button:hover, .btn:hover { background: #e63946; }
+    #lockError { color: #e63946; font-weight: 700; min-height: 1.2rem; }
+
+    /* Panels */
+    .panel {
+        background: #fff;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .panel h2 {
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+        color: #1a1a1a;
+        border-bottom: 3px solid #ff6b35;
+        padding-bottom: .5rem;
+    }
+    .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .75rem; margin-bottom: .75rem; }
+    label { font-size: .8rem; font-weight: 700; text-transform: uppercase; color: #555; display: block; margin-bottom: .25rem; }
+    input, select, textarea {
+        width: 100%;
+        padding: .65rem .75rem;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: .95rem;
+        font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #ff6b35; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { text-align: left; padding: .6rem .5rem; border-bottom: 1px solid #eee; font-size: .9rem; }
+    th { text-transform: uppercase; font-size: .75rem; color: #777; letter-spacing: .5px; }
+    td.actions { white-space: nowrap; }
+    .icon-btn {
+        background: none;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        padding: .3rem .6rem;
+        cursor: pointer;
+        margin-right: .35rem;
+        font-size: .85rem;
+    }
+    .icon-btn.edit { border-color: #ff6b35; color: #ff6b35; }
+    .icon-btn.delete { border-color: #e63946; color: #e63946; }
+    .icon-btn:hover { color: #fff; }
+    .icon-btn.edit:hover { background: #ff6b35; }
+    .icon-btn.delete:hover { background: #e63946; }
+
+    .save-msg { font-weight: 700; color: #2a9d3f; margin-top: .5rem; min-height: 1.2rem; }
+    .hint { font-size: .8rem; color: #777; margin-top: .5rem; line-height: 1.5; }
+    .cat-chip {
+        display: inline-flex; align-items: center; gap: .5rem;
+        border: 2px solid #eee; border-radius: 999px; padding: .4rem .9rem;
+        margin: .25rem .35rem .25rem 0; font-size: .85rem; font-weight: 700;
+    }
+    .cat-chip button { background: none; border: none; color: #e63946; cursor: pointer; font-weight: 900; }
+
+    /* Image upload */
+    .img-preview {
+        width: 70px; height: 70px; object-fit: cover; border-radius: 8px;
+        border: 2px solid #ddd; display: block; margin-top: .5rem;
+    }
+    table img.thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+
+    /* Variants */
+    #variantsList { margin-top: .5rem; }
+    .variant-row {
+        display: grid; grid-template-columns: 1.2fr 1fr 1fr auto;
+        gap: .5rem; align-items: end; margin-bottom: .5rem;
+        background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: .6rem;
+    }
+    .variant-row .icon-btn.delete { margin: 0; height: fit-content; }
+
+    /* Payment settings */
+    .pay-method {
+        border: 2px solid #eee; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;
+    }
+    .pay-method label.toggle { display: flex; align-items: center; gap: .5rem; text-transform: none; font-size: 1rem; color: #222; margin-bottom: .5rem; }
+    .pay-method label.toggle input[type="checkbox"] { width: auto; }
+
+    /* Bulk image upload */
+    .bulk-row {
+        display: grid; grid-template-columns: 60px 1fr 1fr; gap: .75rem; align-items: center;
+        background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: .6rem;
+        margin-bottom: .5rem;
+    }
+    .bulk-row img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+    .bulk-row .bulk-status { font-size: .75rem; color: #777; }
+    .bulk-row .bulk-status.ok { color: #2a9d3f; font-weight: 700; }
+    .bulk-row .bulk-status.err { color: #e63946; font-weight: 700; }
+    .bulk-match-hint { font-size: .75rem; margin-top: .3rem; display: block; color: #999; }
+    .bulk-match-hint.ok { color: #2a9d3f; font-weight: 700; }
+    .bulk-match-hint.warn { color: #e07b00; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+    <h2>🔒 Store Admin</h2>
+    <p>Enter the admin PIN to manage products.</p>
+    <input type="password" id="pinInput" placeholder="PIN" inputmode="numeric" maxlength="12">
+    <button onclick="checkPin()">Unlock</button>
+    <p id="lockError"></p>
+</div>
+
+<div id="adminApp" style="display:none;">
+    <header>
+        <h1>ABDUL HAFEEZ KARYANA STORE — Admin</h1>
+        <div style="display:flex; gap:.6rem;">
+            <a href="store.html">View Store</a>
+            <a href="#" onclick="lockAgain(); return false;">Lock</a>
+        </div>
+    </header>
+
+    <div class="wrap">
+
+        <div class="panel">
+            <h2>Categories</h2>
+            <div id="categoryChips"></div>
+            <div class="field-row" style="margin-top:1rem;">
+                <div>
+                    <label>Icon (emoji)</label>
+                    <input type="text" id="newCatIcon" placeholder="🥤" maxlength="4">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Category Name</label>
+                    <input type="text" id="newCatLabel" placeholder="e.g. Frozen Foods">
+                </div>
+            </div>
+            <button class="btn" onclick="addCategory()">+ Add Category</button>
+        </div>
+
+        <div class="panel">
+            <h2 id="formTitle">Add Product</h2>
+            <input type="hidden" id="editingId">
+            <div class="field-row">
+                <div>
+                    <label>Icon (emoji)</label>
+                    <input type="text" id="prodIcon" placeholder="🛒" maxlength="4">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Product Name</label>
+                    <input type="text" id="prodName" placeholder="e.g. Green Tea 100g">
+                </div>
+                <div>
+                    <label>Base Price (Rs.)</label>
+                    <input type="number" id="prodPrice" placeholder="0" min="0">
+                </div>
+            </div>
+            <div class="field-row">
+                <div>
+                    <label>Category</label>
+                    <select id="prodCategory"></select>
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Short Description</label>
+                    <input type="text" id="prodDesc" placeholder="e.g. Cold Drinks">
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div style="grid-column: span 3;">
+                    <label>Product Image</label>
+                    <input type="file" id="prodImageFile" accept="image/*" onchange="handleImageUpload(this)">
+                    <input type="hidden" id="prodImage">
+                    <p class="hint" id="imgUploadStatus"></p>
+                    <img id="prodImagePreview" class="img-preview" style="display:none;">
+                </div>
+            </div>
+
+            <label style="margin-top:.5rem;">Sizes / Weights (optional)</label>
+            <p class="hint">Add one row per option, e.g. "Small" / size / Rs. 150, or "500" / g / Rs. 200. Leave empty to just use the base price above.</p>
+            <div id="variantsList"></div>
+            <button class="btn" style="background:#555;" onclick="addVariantRow()">+ Add Size / Weight Option</button>
+
+            <div style="margin-top:1.25rem;">
+                <button class="btn" onclick="saveProduct()">Save Product</button>
+                <button class="btn" style="background:#777; margin-left:.5rem;" onclick="resetForm()">Clear</button>
+            </div>
+            <p class="save-msg" id="saveMsg"></p>
+        </div>
+
+        <div class="panel">
+            <h2>Payment Methods</h2>
+            <p class="hint" style="margin-top:0; margin-bottom:1rem;">These show to customers at checkout on the store page.</p>
+
+            <div class="pay-method">
+                <label class="toggle"><input type="checkbox" id="payCodEnabled"> Cash on Delivery</label>
+            </div>
+
+            <div class="pay-method">
+                <label class="toggle"><input type="checkbox" id="payBankEnabled"> Bank Transfer</label>
+                <label>Bank Account Details</label>
+                <textarea id="payBankDetails" rows="3" placeholder="Bank name, account title, account number, IBAN"></textarea>
+            </div>
+
+            <div class="pay-method">
+                <label class="toggle"><input type="checkbox" id="payJazzEnabled"> JazzCash</label>
+                <label>JazzCash Number</label>
+                <input type="text" id="payJazzNumber" placeholder="03XX-XXXXXXX">
+            </div>
+
+            <button class="btn" onclick="savePaymentSettings()">Save Payment Settings</button>
+            <p class="save-msg" id="paySaveMsg"></p>
+        </div>
+
+        <div class="panel">
+            <h2>Bulk Product Images</h2>
+            <p class="hint" style="margin-top:0; margin-bottom:1rem;">
+                Select several photos at once. They'll upload together, then you match each photo to a product from a dropdown and save — much faster than editing products one by one.
+            </p>
+            <input type="file" id="bulkImageFiles" accept="image/*" multiple onchange="handleBulkFilesChosen(this)">
+            <p class="hint" id="bulkUploadStatus"></p>
+            <datalist id="bulkProductDatalist"></datalist>
+            <div id="bulkAssignList" style="margin-top:1rem;"></div>
+            <button class="btn" id="bulkSaveBtn" style="display:none;" onclick="saveBulkAssignments()">Save All Assignments</button>
+            <p class="save-msg" id="bulkSaveMsg"></p>
+        </div>
+
+        <div class="panel">
+            <h2>Products (<span id="productCount">0</span>)</h2>
+            <input type="search" id="adminSearch" placeholder="🔎 Search products..." oninput="renderProductTable()" style="margin-bottom: 1rem;">
+            <table>
+                <thead>
+                    <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="productTableBody"></tbody>
+            </table>
+        </div>
+
+        <p class="hint">
+            Product info saves to your Firestore database and appears on the store page automatically for every visitor. Product images upload to Cloudinary. The store page doesn't need to be refreshed manually if it's already open, and there's no need to host admin and store together anymore.
+        </p>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/12.17.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyBIOYm9oVvY9BbF_hfzDttsrptu17b71ss",
+    authDomain: "store-e65ef.firebaseapp.com",
+    projectId: "store-e65ef",
+    storageBucket: "store-e65ef.firebasestorage.app",
+    messagingSenderId: "1043948118322",
+    appId: "1:1043948118322:web:ec25287f415d069f7e772b",
+    measurementId: "G-21CJEBE4Q6"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const STORE_DOC = db.collection("storeData").doc("main");
+
+/* ---------- Change this PIN to lock the admin page ---------- */
+const ADMIN_PIN = "1234";
+
+const DEFAULT_CATEGORIES = [
+    { id: "beverages",  label: "Beverages",  icon: "🥤" },
+    { id: "snacks",     label: "Snacks",     icon: "🍪" },
+    { id: "grocery",    label: "Grocery",    icon: "🌾" },
+    { id: "household",  label: "Household",  icon: "🧼" },
+    { id: "stationery", label: "Stationery", icon: "📓" }
+];
+
+const DEFAULT_PRODUCTS = [
+    { id: "coca-cola-15l", name: "Coca Cola 1.5L", category: "beverages", icon: "🥤", desc: "Cold Drinks", price: 250, image: "", variants: [] },
+    { id: "pepsi-15l", name: "Pepsi 1.5L", category: "beverages", icon: "🥤", desc: "Cold Drinks", price: 250, image: "", variants: [] },
+    { id: "sooper-biscuits", name: "Sooper Biscuits", category: "snacks", icon: "🍪", desc: "Biscuits", price: 100, image: "", variants: [] },
+    { id: "potato-chips", name: "Potato Chips", category: "snacks", icon: "🍟", desc: "Snacks", price: 80, image: "", variants: [] },
+    { id: "basmati-rice-1kg", name: "Basmati Rice 1kg", category: "grocery", icon: "🌾", desc: "Rice", price: 320, image: "", variants: [] },
+    { id: "daal-masoor-1kg", name: "Daal Masoor 1kg", category: "grocery", icon: "🫘", desc: "Pulses", price: 300, image: "", variants: [] },
+    { id: "red-chilli-powder-200g", name: "Red Chilli Powder 200g", category: "grocery", icon: "🌶️", desc: "Masala", price: 180, image: "", variants: [] },
+    { id: "sugar-1kg", name: "Sugar 1kg", category: "grocery", icon: "🍚", desc: "Grocery", price: 190, image: "", variants: [] },
+    { id: "cooking-oil-1l", name: "Cooking Oil 1L", category: "grocery", icon: "🛢️", desc: "Grocery", price: 580, image: "", variants: [] },
+    { id: "surf-excel-500g", name: "Surf Excel 500g", category: "household", icon: "🧼", desc: "Laundry", price: 320, image: "", variants: [] },
+    { id: "shampoo-180ml", name: "Shampoo 180ml", category: "household", icon: "🧴", desc: "Personal Care", price: 350, image: "", variants: [] },
+    { id: "notebook", name: "Notebook", category: "stationery", icon: "📓", desc: "Stationery", price: 120, image: "", variants: [] }
+];
+
+const DEFAULT_PAYMENT_SETTINGS = {
+    cod: { enabled: true },
+    bank: { enabled: false, details: "" },
+    jazzcash: { enabled: false, number: "" }
+};
+
+// In-memory cache, loaded from Firestore once on unlock. All render
+// functions read this synchronously; mutations update it then push
+// the whole thing to Firestore in the background.
+let STATE = { categories: DEFAULT_CATEGORIES, products: DEFAULT_PRODUCTS, paymentSettings: DEFAULT_PAYMENT_SETTINGS };
+let dataLoaded = false;
+let currentVariants = []; // working list of variant rows for the product form
+
+async function loadStateFromFirestore() {
+    const snap = await STORE_DOC.get();
+    if (snap.exists) {
+        const data = snap.data();
+        STATE = {
+            categories: data.categories || DEFAULT_CATEGORIES,
+            products: data.products || DEFAULT_PRODUCTS,
+            paymentSettings: data.paymentSettings || DEFAULT_PAYMENT_SETTINGS
+        };
+    } else {
+        // First time ever — seed Firestore with the defaults.
+        await STORE_DOC.set(STATE);
+    }
+    dataLoaded = true;
+}
+
+async function persistState() {
+    try {
+        await STORE_DOC.set(STATE);
+        return true;
+    } catch (err) {
+        console.error("Firestore write failed:", err);
+        alert("Could not save to the database: " + (err && err.message ? err.message : err));
+        return false;
+    }
+}
+
+function loadCategories() {
+    return STATE.categories;
+}
+async function saveCategories(cats) {
+    STATE.categories = cats;
+    return await persistState();
+}
+function loadProducts() {
+    return STATE.products;
+}
+async function saveProducts(products) {
+    STATE.products = products;
+    return await persistState();
+}
+function loadPaymentSettings() {
+    return STATE.paymentSettings || DEFAULT_PAYMENT_SETTINGS;
+}
+async function savePaymentSettingsToStore(settings) {
+    STATE.paymentSettings = settings;
+    return await persistState();
+}
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+function slugify(text) {
+    return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || ('item-' + Date.now());
+}
+
+/* ---------- Lock screen ---------- */
+async function checkPin() {
+    const val = document.getElementById("pinInput").value;
+    if (val === ADMIN_PIN) {
+        sessionStorage.setItem("hafizAdminUnlocked", "1");
+        document.getElementById("lockError").textContent = "Loading...";
+        await loadStateFromFirestore();
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("adminApp").style.display = "block";
+        initAdmin();
+    } else {
+        document.getElementById("lockError").textContent = "Incorrect PIN. Try again.";
+    }
+}
+function lockAgain() {
+    sessionStorage.removeItem("hafizAdminUnlocked");
+    document.getElementById("adminApp").style.display = "none";
+    document.getElementById("lockScreen").style.display = "flex";
+    document.getElementById("pinInput").value = "";
+    document.getElementById("pinInput").focus();
+}
+document.getElementById("pinInput").addEventListener("keydown", e => { if (e.key === "Enter") checkPin(); });
+
+if (sessionStorage.getItem("hafizAdminUnlocked") === "1") {
+    document.getElementById("lockScreen").style.display = "none";
+    document.getElementById("adminApp").style.display = "block";
+    loadStateFromFirestore().then(initAdmin);
+}
+
+/* ---------- Admin app ---------- */
+function initAdmin() {
+    renderCategoryChips();
+    renderCategoryOptions();
+    renderProductTable();
+    renderVariantRows();
+    renderPaymentSettings();
+}
+
+function renderCategoryChips() {
+    const cats = loadCategories();
+    document.getElementById("categoryChips").innerHTML = cats.map(c =>
+        `<span class="cat-chip">${c.icon || ""} ${escapeHtml(c.label)} <button onclick="deleteCategory('${c.id}')" title="Delete category">✕</button></span>`
+    ).join("") || '<span class="hint">No categories yet.</span>';
+}
+
+function renderCategoryOptions() {
+    const cats = loadCategories();
+    const select = document.getElementById("prodCategory");
+    const current = select.value;
+    select.innerHTML = cats.map(c => `<option value="${c.id}">${c.icon || ""} ${escapeHtml(c.label)}</option>`).join("");
+    if (current) select.value = current;
+}
+
+async function addCategory() {
+    const label = document.getElementById("newCatLabel").value.trim();
+    const icon = document.getElementById("newCatIcon").value.trim();
+    if (!label) { alert("Please enter a category name."); return; }
+    const cats = loadCategories();
+    const id = slugify(label);
+    if (cats.some(c => c.id === id)) { alert("That category already exists."); return; }
+    cats.push({ id, label, icon });
+    const ok = await saveCategories(cats);
+    if (!ok) return;
+    document.getElementById("newCatLabel").value = "";
+    document.getElementById("newCatIcon").value = "";
+    renderCategoryChips();
+    renderCategoryOptions();
+}
+
+async function deleteCategory(id) {
+    const products = loadProducts();
+    const inUse = products.some(p => p.category === id);
+    if (inUse && !confirm("Some products use this category. Delete it anyway? Those products will keep the old category tag until you edit them.")) return;
+    const cats = loadCategories().filter(c => c.id !== id);
+    const ok = await saveCategories(cats);
+    if (!ok) return;
+    renderCategoryChips();
+    renderCategoryOptions();
+}
+
+/* ---------- Image upload (Cloudinary) ---------- */
+const CLOUDINARY_CLOUD_NAME = "mawtcmig";
+const CLOUDINARY_UPLOAD_PRESET = "Store-product";
+
+async function handleImageUpload(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const status = document.getElementById("imgUploadStatus");
+    if (file.size > 5 * 1024 * 1024) {
+        status.textContent = "Image too large — please pick one under 5MB.";
+        return;
+    }
+    status.textContent = "Uploading...";
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+        const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+            { method: "POST", body: formData }
+        );
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error((data && data.error && data.error.message) || "Upload failed");
+        }
+
+        const url = data.secure_url;
+        document.getElementById("prodImage").value = url;
+        const preview = document.getElementById("prodImagePreview");
+        preview.src = url;
+        preview.style.display = "block";
+        status.textContent = "Uploaded ✓";
+    } catch (err) {
+        console.error("Image upload failed:", err);
+        status.textContent = "Upload failed: " + (err && err.message ? err.message : err);
+    }
+}
+
+/* ---------- Bulk image upload ---------- */
+let bulkUploads = []; // { id, file, url, status: 'uploading'|'done'|'error', productId }
+
+async function handleBulkFilesChosen(input) {
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+
+    bulkUploads = files.map((file, i) => ({
+        id: "b" + Date.now() + "_" + i,
+        file,
+        url: "",
+        status: "uploading",
+        productId: ""
+    }));
+    renderBulkAssignList();
+
+    const status = document.getElementById("bulkUploadStatus");
+    status.textContent = `Uploading 0 / ${bulkUploads.length}...`;
+    let done = 0;
+
+    await Promise.all(bulkUploads.map(async (item) => {
+        if (item.file.size > 5 * 1024 * 1024) {
+            item.status = "error";
+            item.error = "Too large (max 5MB)";
+        } else {
+            try {
+                const formData = new FormData();
+                formData.append("file", item.file);
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+                const res = await fetch(
+                    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                    { method: "POST", body: formData }
+                );
+                const data = await res.json();
+                if (!res.ok) throw new Error((data && data.error && data.error.message) || "Upload failed");
+                item.url = data.secure_url;
+                item.status = "done";
+            } catch (err) {
+                item.status = "error";
+                item.error = err && err.message ? err.message : String(err);
+            }
+        }
+        done++;
+        status.textContent = `Uploading ${done} / ${bulkUploads.length}...`;
+        renderBulkAssignList();
+    }));
+
+    const okCount = bulkUploads.filter(i => i.status === "done").length;
+    status.textContent = `${okCount} / ${bulkUploads.length} uploaded. Choose a product for each photo below, then save.`;
+    document.getElementById("bulkSaveBtn").style.display = bulkUploads.some(i => i.status === "done") ? "inline-block" : "none";
+}
+
+function renderBulkAssignList() {
+    const container = document.getElementById("bulkAssignList");
+    const products = loadProducts();
+
+    // Shared datalist powers the search-as-you-type suggestions for every row.
+    const datalist = document.getElementById("bulkProductDatalist");
+    datalist.innerHTML = products.map(p => `<option value="${escapeHtml(p.name)}">`).join("");
+
+    if (!bulkUploads.length) { container.innerHTML = ""; return; }
+
+    container.innerHTML = bulkUploads.map(item => {
+        let thumb;
+        if (item.status === "uploading") thumb = `<div class="bulk-status">Uploading…</div>`;
+        else if (item.status === "error") thumb = `<div class="bulk-status err">Failed</div>`;
+        else thumb = `<img src="${item.url}" alt="">`;
+
+        const statusText = item.status === "error"
+            ? `<span class="bulk-status err">${escapeHtml(item.error || "Upload failed")}</span>`
+            : item.status === "uploading"
+                ? `<span class="bulk-status">Uploading…</span>`
+                : `<span class="bulk-status ok">Uploaded ✓</span>`;
+
+        const matchedProduct = item.productId ? products.find(p => p.id === item.productId) : null;
+        const hintText = matchedProduct ? "✓ matched" : "";
+        const hintClass = matchedProduct ? "bulk-match-hint ok" : "bulk-match-hint";
+
+        return `<div class="bulk-row">
+            <div>${thumb}</div>
+            <div>
+                <input type="text" list="bulkProductDatalist"
+                    value="${matchedProduct ? escapeHtml(matchedProduct.name) : ""}"
+                    placeholder="Type to search product…"
+                    oninput="updateBulkAssignmentByName('${item.id}', this.value)"
+                    ${item.status !== "done" ? "disabled" : ""}>
+                <span class="${hintClass}" id="bulkMatch_${item.id}">${hintText}</span>
+            </div>
+            <div>${statusText}</div>
+        </div>`;
+    }).join("");
+}
+
+function updateBulkAssignmentByName(id, typedName) {
+    const item = bulkUploads.find(i => i.id === id);
+    if (!item) return;
+    const products = loadProducts();
+    const typed = typedName.trim().toLowerCase();
+    const match = typed ? products.find(p => p.name.toLowerCase() === typed) : null;
+    item.productId = match ? match.id : "";
+
+    const hint = document.getElementById("bulkMatch_" + id);
+    if (!hint) return;
+    if (!typed) { hint.textContent = ""; hint.className = "bulk-match-hint"; }
+    else if (match) { hint.textContent = "✓ matched"; hint.className = "bulk-match-hint ok"; }
+    else { hint.textContent = "No exact match — pick a suggestion"; hint.className = "bulk-match-hint warn"; }
+}
+
+async function saveBulkAssignments() {
+    const assigned = bulkUploads.filter(i => i.status === "done" && i.productId);
+    if (!assigned.length) { alert("Choose a product for at least one uploaded photo first."); return; }
+
+    const msg = document.getElementById("bulkSaveMsg");
+    msg.textContent = "Saving...";
+
+    let products = loadProducts();
+    assigned.forEach(item => {
+        products = products.map(p => p.id === item.productId ? { ...p, image: item.url } : p);
+    });
+
+    const ok = await saveProducts(products);
+    if (!ok) { msg.textContent = ""; return; }
+
+    renderProductTable();
+    msg.textContent = `Saved ${assigned.length} image(s) ✓`;
+    bulkUploads = bulkUploads.filter(i => !i.productId); // keep unassigned ones for another pass
+    renderBulkAssignList();
+    document.getElementById("bulkSaveBtn").style.display = bulkUploads.some(i => i.status === "done") ? "inline-block" : "none";
+    document.getElementById("bulkImageFiles").value = "";
+    setTimeout(() => msg.textContent = "", 3000);
+}
+
+/* ---------- Size / weight variants ---------- */
+function addVariantRow(existing) {
+    currentVariants.push(existing || { id: "v" + Date.now() + Math.random().toString(36).slice(2, 6), label: "", unit: "", price: "" });
+    renderVariantRows();
+}
+function removeVariantRow(id) {
+    currentVariants = currentVariants.filter(v => v.id !== id);
+    renderVariantRows();
+}
+function updateVariantField(id, field, value) {
+    const v = currentVariants.find(v => v.id === id);
+    if (v) v[field] = value;
+}
+function renderVariantRows() {
+    const container = document.getElementById("variantsList");
+    if (!currentVariants.length) {
+        container.innerHTML = '<p class="hint">No size/weight options added — base price will be used.</p>';
+        return;
+    }
+    container.innerHTML = currentVariants.map(v => `
+        <div class="variant-row">
+            <div>
+                <label>Label</label>
+                <input type="text" value="${escapeHtml(v.label)}" placeholder="e.g. Small or 500"
+                    oninput="updateVariantField('${v.id}', 'label', this.value)">
+            </div>
+            <div>
+                <label>Unit</label>
+                <select onchange="updateVariantField('${v.id}', 'unit', this.value)">
+                    <option value="" ${!v.unit ? "selected" : ""}>—</option>
+                    <option value="Small" ${v.unit === "Small" ? "selected" : ""}>Small</option>
+                    <option value="Medium" ${v.unit === "Medium" ? "selected" : ""}>Medium</option>
+                    <option value="Large" ${v.unit === "Large" ? "selected" : ""}>Large</option>
+                    <option value="XL" ${v.unit === "XL" ? "selected" : ""}>XL</option>
+                    <option value="ml" ${v.unit === "ml" ? "selected" : ""}>ml</option>
+                    <option value="g" ${v.unit === "g" ? "selected" : ""}>g</option>
+                    <option value="kg" ${v.unit === "kg" ? "selected" : ""}>kg</option>
+                    <option value="Liter" ${v.unit === "Liter" ? "selected" : ""}>Liter</option>
+                </select>
+            </div>
+            <div>
+                <label>Price (Rs.)</label>
+                <input type="number" min="0" value="${escapeHtml(v.price)}" placeholder="0"
+                    oninput="updateVariantField('${v.id}', 'price', this.value)">
+            </div>
+            <button class="icon-btn delete" onclick="removeVariantRow('${v.id}')">✕</button>
+        </div>
+    `).join("");
+}
+
+/* ---------- Payment settings ---------- */
+function renderPaymentSettings() {
+    const s = loadPaymentSettings();
+    document.getElementById("payCodEnabled").checked = !!(s.cod && s.cod.enabled);
+    document.getElementById("payBankEnabled").checked = !!(s.bank && s.bank.enabled);
+    document.getElementById("payBankDetails").value = (s.bank && s.bank.details) || "";
+    document.getElementById("payJazzEnabled").checked = !!(s.jazzcash && s.jazzcash.enabled);
+    document.getElementById("payJazzNumber").value = (s.jazzcash && s.jazzcash.number) || "";
+}
+async function savePaymentSettings() {
+    const settings = {
+        cod: { enabled: document.getElementById("payCodEnabled").checked },
+        bank: {
+            enabled: document.getElementById("payBankEnabled").checked,
+            details: document.getElementById("payBankDetails").value.trim()
+        },
+        jazzcash: {
+            enabled: document.getElementById("payJazzEnabled").checked,
+            number: document.getElementById("payJazzNumber").value.trim()
+        }
+    };
+    const msg = document.getElementById("paySaveMsg");
+    msg.textContent = "Saving...";
+    const ok = await savePaymentSettingsToStore(settings);
+    if (!ok) { msg.textContent = ""; return; }
+    msg.textContent = "Saved ✓";
+    setTimeout(() => msg.textContent = "", 2000);
+}
+
+/* ---------- Products ---------- */
+function renderProductTable() {
+    const query = (document.getElementById("adminSearch").value || "").toLowerCase().trim();
+    const products = loadProducts().filter(p => p.name.toLowerCase().includes(query));
+    const cats = loadCategories();
+    document.getElementById("productCount").textContent = loadProducts().length;
+    const body = document.getElementById("productTableBody");
+    if (!products.length) {
+        body.innerHTML = '<tr><td colspan="5" class="hint">No products found.</td></tr>';
+        return;
+    }
+    body.innerHTML = products.map(p => {
+        const cat = cats.find(c => c.id === p.category);
+        const catLabel = cat ? `${cat.icon || ""} ${escapeHtml(cat.label)}` : escapeHtml(p.category);
+        const imgCell = p.image
+            ? `<img class="thumb" src="${p.image}" alt="">`
+            : (p.icon || "🛒");
+        let priceCell = `Rs. ${Number(p.price).toLocaleString()}`;
+        if (p.variants && p.variants.length) {
+            const prices = p.variants.map(v => Number(v.price) || 0).filter(n => n > 0);
+            if (prices.length) {
+                priceCell = `Rs. ${Math.min(...prices).toLocaleString()}–${Math.max(...prices).toLocaleString()}`;
+            }
+        }
+        return `<tr>
+            <td>${imgCell}</td>
+            <td>${escapeHtml(p.name)}</td>
+            <td>${catLabel}</td>
+            <td>${priceCell}</td>
+            <td class="actions">
+                <button class="icon-btn edit" onclick="editProduct('${p.id}')">Edit</button>
+                <button class="icon-btn delete" onclick="deleteProduct('${p.id}')">Delete</button>
+            </td>
+        </tr>`;
+    }).join("");
+}
+
+function editProduct(id) {
+    const p = loadProducts().find(x => x.id === id);
+    if (!p) return;
+    document.getElementById("editingId").value = p.id;
+    document.getElementById("prodIcon").value = p.icon || "";
+    document.getElementById("prodName").value = p.name;
+    document.getElementById("prodPrice").value = p.price;
+    document.getElementById("prodDesc").value = p.desc || "";
+    document.getElementById("prodCategory").value = p.category;
+    document.getElementById("prodImage").value = p.image || "";
+    const preview = document.getElementById("prodImagePreview");
+    if (p.image) { preview.src = p.image; preview.style.display = "block"; }
+    else { preview.style.display = "none"; }
+    document.getElementById("imgUploadStatus").textContent = "";
+    currentVariants = (p.variants || []).map(v => ({ ...v }));
+    renderVariantRows();
+    document.getElementById("formTitle").textContent = "Edit Product";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function deleteProduct(id) {
+    if (!confirm("Delete this product?")) return;
+    const products = loadProducts().filter(p => p.id !== id);
+    const ok = await saveProducts(products);
+    if (!ok) return;
+    renderProductTable();
+}
+
+async function saveProduct() {
+    const editingId = document.getElementById("editingId").value;
+    const name = document.getElementById("prodName").value.trim();
+    const price = Number(document.getElementById("prodPrice").value);
+    const category = document.getElementById("prodCategory").value;
+    const icon = document.getElementById("prodIcon").value.trim();
+    const desc = document.getElementById("prodDesc").value.trim();
+    const image = document.getElementById("prodImage").value.trim();
+    const variants = currentVariants
+        .filter(v => v.label.trim() !== "" || v.price !== "")
+        .map(v => ({ id: v.id, label: v.label.trim(), unit: v.unit, price: Number(v.price) || 0 }));
+
+    if (!name) { alert("Please enter a product name."); return; }
+    if (!price || price <= 0) { alert("Please enter a valid base price."); return; }
+    if (!category) { alert("Please add a category first."); return; }
+
+    let products = loadProducts();
+
+    if (editingId) {
+        products = products.map(p => p.id === editingId ? { ...p, name, price, category, icon, desc, image, variants } : p);
+    } else {
+        const id = slugify(name);
+        if (products.some(p => p.id === id)) { alert("A product with this name already exists."); return; }
+        products.push({ id, name, price, category, icon, desc, image, variants });
+    }
+
+    const msg = document.getElementById("saveMsg");
+    msg.textContent = "Saving...";
+    const ok = await saveProducts(products);
+    if (!ok) { msg.textContent = ""; return; }
+    resetForm();
+    renderProductTable();
+    msg.textContent = "Saved ✓";
+    setTimeout(() => msg.textContent = "", 2000);
+}
+
+function resetForm() {
+    document.getElementById("editingId").value = "";
+    document.getElementById("prodIcon").value = "";
+    document.getElementById("prodName").value = "";
+    document.getElementById("prodPrice").value = "";
+    document.getElementById("prodDesc").value = "";
+    document.getElementById("prodImage").value = "";
+    document.getElementById("prodImageFile").value = "";
+    document.getElementById("imgUploadStatus").textContent = "";
+    document.getElementById("prodImagePreview").style.display = "none";
+    currentVariants = [];
+    renderVariantRows();
+    document.getElementById("formTitle").textContent = "Add Product";
+}
+
+</script>
+</body>
+</html>
